@@ -1,0 +1,34 @@
+version: '3.8'
+name: aaa-cv-adnevarko
+services:
+    aaa-cv-adnevarko:
+        runtime: nvidia
+        build:
+          context: ./
+          dockerfile: ./Dockerfile
+          args:
+            CONTEXT: 'dev'
+        image: item2param-learning:dev-$USER
+        container_name: aaa-cv-adnevarko
+        environment:
+            - TZ=MSK
+            - PYTHONUNBUFFERED=1
+            - JUPYTER_PASSWORD=$JUPYTER_PASSWORD
+            - APP_NAME=item2param-learning
+            - USERNAME=$USER
+            - OPENBLAS_NUM_THREADS=8
+            - DS_VERTICA_USERNAME=$DS_VERTICA_USERNAME
+            - DS_VERTICA_PASSWORD=$DS_VERTICA_PASSWORD
+            - DS_VERTICA_PORT=$DS_VERTICA_PORT
+            - APP_ENVIRONMENT=$APP_ENVIRONMENT
+            - SERVICE_INFOMODEL_URL=https://prod.k.avito.ru/service-infomodel
+            - SERVICE_ITEM2PARAM_URL=http://staging.k.avito.ru/service-item2param
+            - SERVICE_DATASET_COLLECTOR_URL=http://prod.k.avito.ru/service-dataset-collector
+            - SERVICE_DATASET_COLLECTOR_TIMEOUT=10000
+        volumes:
+            - ./:/app
+        ports:
+            - "32845:8888"
+        shm_size: 16G
+        command: /bin/bash -c "cd / && jupyter notebook --allow-root --ip=0.0.0.0             & nohup tensorboard --logdir /data/tensorboard/ --bind_all             && sleep infinity"
+        restart: unless-stopped
